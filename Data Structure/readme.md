@@ -10,7 +10,17 @@ YouTube Data API에 사용되는  데이터
     "title": string,
     "description": string,
     "thumbnails": {
-      (key): {
+      "default": {
+        "url": string,
+        "width": unsigned integer,
+        "height": unsigned integer
+      },
+      "medium": {
+        "url": string,
+        "width": unsigned integer,
+        "height": unsigned integer
+      },
+      "high": {
         "url": string,
         "width": unsigned integer,
         "height": unsigned integer
@@ -32,6 +42,8 @@ YouTube Data API에 사용되는  데이터
 - description
 - tags
 - categoryId
+- video file name
+- thubmnail file name (default, medium, high)
 
 비정형 데이터 | Blob Storage
 ---
