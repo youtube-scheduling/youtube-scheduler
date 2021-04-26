@@ -38,6 +38,8 @@ YouTube Data API에 사용되는  데이터
 정형 데이터 | Table Storage
 ---
 
+- PartitionKey = "data"
+- RowKey = 0000 ~ 9999
 - title
 - description
 - tags
