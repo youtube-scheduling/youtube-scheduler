@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6 , 3.7 , 3.8]
+        python-version: [2.7]
         
     steps:
     - uses: actions/checkout@v2
@@ -38,9 +38,9 @@ jobs:
       
     - name: install-lib
       run: |
-        python3 -m pip install --upgrade pip
-        pip3 install google-api-client
-        pip3 install google-auth-oauthlib
+        python -m pip install --upgrade pip
+        pip install google-api-client
+        pip install google-auth-oauthlib
         
     - name: testing_files
       run: |
