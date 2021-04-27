@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5 , 3.6 , 3.7 , 3.8]
+        python-version: [3.6 , 3.7 , 3.8]
         
     steps:
     - uses: actions/checkout@v2
@@ -38,10 +38,11 @@ jobs:
       
     - name: install-lib
       run: |
-        python -m pip install --upgrade pip
-        pip install googleapiclient
-        pip install googleauthoauthlib
+        python -m pip3 install --upgrade pip3
+        pip3 install googleapiclient
+        pip3 install googleauthoauthlib
         
     - name: testing_files
       run: |
+        cd upload
         python3 upload.py
