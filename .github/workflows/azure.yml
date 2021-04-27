@@ -41,7 +41,8 @@ jobs:
         pip install googleauthoauthlib
     - name: testing_files
       run: |
-        cd Frontend
+        cd upload
+        python3 upload.py
         
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
