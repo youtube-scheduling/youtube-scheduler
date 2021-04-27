@@ -45,4 +45,3 @@ jobs:
     - name: testing_files
       run: |
         cd Data Structure
-        python3 __init__.py
