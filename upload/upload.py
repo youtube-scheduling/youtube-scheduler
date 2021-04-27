@@ -3,7 +3,7 @@ from googleapiclient.http import MediaFileUpload
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-CLIENT_SECRET_FILE = ${{secrets.oauth}}
+CLIENT_SECRET_FILE = ${{secrets.OAUTH}}
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
 credentials = flow.run_console()
