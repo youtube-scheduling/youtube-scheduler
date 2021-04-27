@@ -39,7 +39,8 @@ jobs:
     - name: install-lib
       run: |
         python3 -m pip install --upgrade pip
-        pip install gogleapiclient
+        pip install googleapiclient
+        pip install googleauthoauthlib
         
     - name: testing_files
       run: |
