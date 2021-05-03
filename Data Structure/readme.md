@@ -39,7 +39,7 @@ YouTube Data API에 사용되는  데이터
 ---
 
 - PartitionKey = "data"
-- RowKey = 0000 ~ 9999
+- RowKey = uploaddatetime + randomkey
 - title
 - description
 - tags
