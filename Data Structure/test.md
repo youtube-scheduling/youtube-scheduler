@@ -4,28 +4,34 @@
 used file & service
 ---
 
-- \_\_init__.py
-- function.json
-- azure storage account(container, table)
 - azure functions
+    - azure/DataGather/\_\_init__.py
+    - azure/DataGather/function.json
+- azure logic apps
+    - azure/logicapps.json
+- azure storage account(blob, table)
 
 environment
 ---
 
-local 에서 진행  
-HttpExample: 임시 function name  
+Postman 이용  
 table entity의 RowKey를 search_key로 사용  
-container에 "videos/1.avi"와 "thumbnails/thumbnail.png"가 업로드 돼있음  
-
-table entity
-![table entity](./img/tableentity.png)
+blob storage에 "videos/1.avi"와 "thumbnails/thumbnail.png"가 업로드 돼있음  
+  
+table entity(위-old,  아래-new)
+![tableentity](./img/tableentity.png)  
 
 ***
 
-### Request
+### Request URL [POST]
 
-    http://localhost:7071/api/HttpExample?search_key=0001
+    https://prod-28.koreacentral.logic.azure.com:443/workflows/bd6d7f20e6b449168e2632e67f809b24/triggers/request/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Frequest%2Frun&sv=1.0&sig=cPB7WfwJVVjI3MF_-E8vbmEZ27bn3n4vjlfNqKPzLkg
 
-### Return
+### Request body
 
-    videos/1.avi thumbnails/thumbnail.png
+    {
+        "UploadTime" : "2021-05-05T00:00:00Z",
+        "RowKey" : "4aakjz1kag"
+    }
+
+### DataGather function까지 작동함을 확인. 2021-05-04
