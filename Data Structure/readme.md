@@ -56,12 +56,12 @@ YouTube Data API에 사용되는  데이터
 Blob storage 구조
 ---
 
-![data structure](./img/datastructure.png)
+![data structure](./img/datastructure.png)  
 
-데이터 전달 과정
+데이터 전달 과정  
 ---
-
-![LogicApps](./img/logicapps.png)
+  
+![LogicApps](./img/logicapps.png)  
 HTTP 요청을 수신하는 경우: UploadTime, RowKey 받음  
 다음 기간까지 지연: UploadTime 까지  
 HTTP: DataGather function 실행하는 URL 요청(with. RowKey)  
