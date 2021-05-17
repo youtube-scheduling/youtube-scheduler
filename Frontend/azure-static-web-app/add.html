@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add</title>
+    <style>
+        body{
+            font-size: 24px;
+            text-align: center;
+        }
+        input{
+            width: 400px;
+            height: 60px;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 10px;
+            border-width: 3px;
+            outline: none;
+            border-color: black;
+        }
+        textarea{
+            width: 600px;
+            height: 200px;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 10px;
+            border-width: 3px;
+            outline: none;
+            border-color: black;
+        }
+        select{
+            width: 250px;
+            height:60px;
+            text-align: center;
+            font-size: 20px;
+            border-radius: 10px;
+            border-width: 3px;
+            outline: none;
+            border-color: black;
+        }
+        #btn{
+            width:200px;
+            height: 70px;
+            border-radius: 10px;
+            background-color:gray;
+            color:white;
+            font-size:36px;
+            border:none;
+            outline: none;
+        }
+        .file{
+            border-radius:0
+        }
+        img{
+            width: 50px;
+            padding-right: 100px;
+        }
+    </style>
+</head>
+<body>
+    <p style="text-align: right;"><a href='index.html'><img src="home.png"></a></p>
+    <div>
+        <p><label>제목 : <input name="title" type="text" placeholder="제목을 입력하세요."></label></p>
+        <p><label style="vertical-align: middle;">내용 : <textarea name="content" placeholder="내용을 입력하세요." style="vertical-align: middle;"></textarea></label></p>
+        <p><label>태그 : <input name="tag" type="text" placeholder="태그를 쉼표로 구분하여 입력하세요."></label></p>
+        <p><label>카테고리 : <select>
+            <option value='1'>영화/애니메이션</option><option value='2'>자동차/교통</option><option value='10'>음악</option>
+            <option value='15'>애완동물/동물</option><option value='17'>스포츠</option><option value='19'>여행/이벤트</option>
+            <option value='20'>게임</option><option value='22'>인물/블로그</option><option value='23'>코미디</option>
+            <option value='24'>엔터테인먼트</option><option value='25'>뉴스/정치</option><option value='26'>노하우/스타일</option>
+            <option value='27'>교육</option><option value='28'>과학기술</option><option value='29'>비영리/사회운동</option>
+        </select></label></p>
+        <p><label>예약 시간 : <input type="date" name="date"><input type="time" name="time" style="margin-left: 10px;"></label></p>
+        <p><label>동영상 : <input class="file" type="file" name="video" ></label></p>
+        <p><label>썸네일 : <input class="file" type="file" name="img" accept="image/*"></label></p>
+        <input type="submit" value="추가하기" id="btn">
+    </div>
+</body>
+</html>
