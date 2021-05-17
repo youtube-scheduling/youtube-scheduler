@@ -5,6 +5,26 @@
         "workflows_YVSlogic_name": {
             "defaultValue": "YVSlogic",
             "type": "String"
+        },
+        "storageAccounts_videodatas_externalid": {
+            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Storage/storageAccounts/videodatas",
+            "type": "String"
+        },
+        "sites_YVSfunction_externalid": {
+            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/sites/YVSfunction",
+            "type": "String"
+        },
+        "connections_azureblob_externalid": {
+            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureblob",
+            "type": "String"
+        },
+        "connections_azureeventgrid_externalid": {
+            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureeventgrid",
+            "type": "String"
+        },
+        "connections_azuretables_externalid": {
+            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azuretables",
+            "type": "String"
         }
     },
     "variables": {},
@@ -19,52 +39,195 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "contentVersion": "1.0.0.0",
-                    "parameters": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
                     "triggers": {
-                        "request": {
-                            "type": "Request",
-                            "kind": "Http",
+                        "리소스_이벤트가_발생하는_경우": {
+                            "splitOn": "@triggerBody()",
+                            "type": "ApiConnectionWebhook",
                             "inputs": {
-                                "schema": {
+                                "body": {
                                     "properties": {
-                                        "RowKey": {
-                                            "type": "string"
+                                        "destination": {
+                                            "endpointType": "webhook",
+                                            "properties": {
+                                                "endpointUrl": "@{listCallbackUrl()}"
+                                            }
                                         },
-                                        "UploadTime": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
+                                        "filter": {
+                                            "includedEventTypes": [
+                                                "Microsoft.Storage.BlobCreated"
+                                            ],
+                                            "subjectBeginsWith": "/blobServices/default/containers/ref-files/blobs/videos/"
+                                        },
+                                        "topic": "[parameters('storageAccounts_videodatas_externalid')]"
+                                    }
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
+                                    }
+                                },
+                                "path": "/subscriptions/@{encodeURIComponent('df794b46-43e0-4cf8-ae3a-a160b5c659d4')}/providers/@{encodeURIComponent('Microsoft.Storage.StorageAccounts')}/resource/eventSubscriptions",
+                                "queries": {
+                                    "x-ms-api-version": "2017-09-15-preview"
                                 }
                             }
                         }
                     },
                     "actions": {
-                        "HTTP": {
+                        "thumbnail_가져오기": {
                             "runAfter": {
-                                "다음_기간까지_지연": [
+                                "video_가져오기": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Http",
+                            "type": "ApiConnection",
                             "inputs": {
-                                "method": "GET",
-                                "uri": "https://yvsfunction.azurewebsites.net/api/DataGather?RowKey=@{triggerBody()?['RowKey']}"
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/default/GetFileContentByPath",
+                                "queries": {
+                                    "inferContentType": true,
+                                    "path": "/ref-files/thumbnails/@{variables('fileName')}.@{body('엔터티_가져오기')?['thumbnail']}",
+                                    "queryParametersSingleEncoded": true
+                                }
                             }
                         },
-                        "다음_기간까지_지연": {
-                            "runAfter": {},
-                            "type": "Wait",
+                        "video_가져오기": {
+                            "runAfter": {
+                                "엔터티_가져오기": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
                             "inputs": {
-                                "until": {
-                                    "timestamp": "@triggerBody()?['UploadTime']"
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/default/GetFileContentByPath",
+                                "queries": {
+                                    "inferContentType": true,
+                                    "path": "/ref-files/videos/@{variables('fileName')}.@{body('엔터티_가져오기')?['video']}",
+                                    "queryParametersSingleEncoded": true
                                 }
+                            }
+                        },
+                        "youtubeupload": {
+                            "runAfter": {
+                                "thumbnail_가져오기": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Function",
+                            "inputs": {
+                                "body": {
+                                    "table": "@body('엔터티_가져오기')",
+                                    "thumbnail": "@body('thumbnail_가져오기')",
+                                    "video": "@body('video_가져오기')"
+                                },
+                                "function": {
+                                    "id": "[concat(parameters('sites_YVSfunction_externalid'), '/functions/youtubeupload')]"
+                                },
+                                "method": "POST"
+                            }
+                        },
+                        "youtubeupload_without_thumbnail": {
+                            "runAfter": {
+                                "thumbnail_가져오기": [
+                                    "Failed",
+                                    "Skipped",
+                                    "TimedOut"
+                                ]
+                            },
+                            "type": "Function",
+                            "inputs": {
+                                "body": {
+                                    "table": "@body('엔터티_가져오기')",
+                                    "video": "@body('video_가져오기')"
+                                },
+                                "function": {
+                                    "id": "[concat(parameters('sites_YVSfunction_externalid'), '/functions/youtubeupload')]"
+                                },
+                                "method": "POST"
+                            }
+                        },
+                        "변수_설정": {
+                            "runAfter": {
+                                "변수_초기화": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "fileName",
+                                "value": "@{substring(triggerBody()?['subject'], add(lastIndexOf(triggerBody()?['subject'], '/'), 1), sub(sub(lastIndexOf(triggerBody()?['subject'], '.'), lastIndexOf(triggerBody()?['subject'], '/')), 1))}"
+                            }
+                        },
+                        "변수_초기화": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "fileName",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "엔터티_가져오기": {
+                            "runAfter": {
+                                "변수_설정": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuretables']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/Tables/@{encodeURIComponent('refdatas')}/entities(PartitionKey='@{encodeURIComponent('data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
                             }
                         }
                     },
                     "outputs": {}
                 },
-                "parameters": {}
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureblob": {
+                                "connectionId": "[parameters('connections_azureblob_externalid')]",
+                                "connectionName": "azureblob",
+                                "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureblob"
+                            },
+                            "azureeventgrid": {
+                                "connectionId": "[parameters('connections_azureeventgrid_externalid')]",
+                                "connectionName": "azureeventgrid",
+                                "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureeventgrid"
+                            },
+                            "azuretables": {
+                                "connectionId": "[parameters('connections_azuretables_externalid')]",
+                                "connectionName": "azuretables",
+                                "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azuretables"
+                            }
+                        }
+                    }
+                }
             }
         }
     ]
