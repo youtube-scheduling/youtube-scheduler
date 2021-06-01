@@ -5,7 +5,7 @@ import requests
 import os,uuid,sys
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 import json
-
+import asyncio, time
 
 app = Flask(__name__)
 
@@ -13,24 +13,13 @@ app = Flask(__name__)
 def get_infomation():
     
     if request.method == 'POST':
+        start = time.time()
+        loop = asyncio.get_event_loop()
         data = request.form
-        table_service = TableService(account_name='jsondataforyoutube',account_key ='RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==')
-        table_service.create_table('tasktable')
-
-        path = os.getcwd()
-        path = path + '/data'
-        img_path = path + '/image.jpg'
-        video_path = path + '/video.avi'
-
-        #f = open(text_path, "w")
-
         cutted_tags = data['tag'].split(',')
 
         dic_data = dict()
         
-        #f.write(data['title'])
-        #f.write('\n')
-
         dic_data['title'] = data['title']
         dic_data['tags'] = cutted_tags
         dic_data['content'] = data['content']
@@ -38,41 +27,68 @@ def get_infomation():
         dic_data['time'] = data['time']
         json_data = json.dumps(dic_data)
 
-        task = {'PartitionKey': 'text_data', 'RowKey': "21",'description': json_data, 'priority': 250}
+        #upload_table(json_data)
 
-        table_service.insert_entity('tasktable', task)
-
-        print('storage success')
-
-        blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=jsondataforyoutube;AccountKey=RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==;EndpointSuffix=core.windows.net")
-        container_name = "fileforyoutube"
-        container_name_img = "imgforyoutube"
-
-        #initial code for create blob container
-        #container_client = blob_service_client.create_container(container_name)
-        #container_client = blob_service_client.create_container(container_name_img)
-
-        local_file_name = str(uuid.uuid4()) + ".avi"
-        upload_file_path = os.path.join(path, local_file_name)
         video = request.files['video']
-        video.save(upload_file_path)
-
-        blob_client = blob_service_client.get_blob_client(container = container_name, blob = local_file_name)
-        blob_client.upload_blob(upload_file_path)
-        
-        local_file_name = str(uuid.uuid4()) + ".img"
-        upload_file_path_img = os.path.join(path, local_file_name)
         img = request.files['img']
-        img.save(upload_file_path_img)
 
-        blob_client = blob_service_client.get_blob_client(container=container_name_img, blob= local_file_name)
-        blob_client.upload_blob(upload_file_path_img)
+        loop.run_until_complete(asyncio.gather(upload_table(json_data), upload_blob(video,img)))
 
-        print('blob success')
+        #upload_blob(video,img)
+
+        end = time.time()
+
+        print(end-start)
         
 
     return render_template('add.html')
 
+async def upload_table(json_data):
+    table_service = TableService(account_name='jsondataforyoutube',account_key ='RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==')
+    table_service.create_table('tasktable')
+
+    task = {'PartitionKey': 'text_data', 'RowKey': "14",'description': json_data, 'priority': 250}
+
+    table_service.insert_entity('tasktable', task)
+
+    print('storage success')
+
+    await asyncio.sleep(1)
+
+
+async def upload_blob(video, img):
+    path = os.getcwd()
+    path = path + '/data'
+
+
+    blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=jsondataforyoutube;AccountKey=RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==;EndpointSuffix=core.windows.net")
+    container_name = "fileforyoutube"
+    container_name_img = "imgforyoutube"
+
+    #initial code for create blob container
+    #container_client = blob_service_client.create_container(container_name)
+    #container_client = blob_service_client.create_container(container_name_img)
+
+    local_file_name = str(uuid.uuid4()) + ".avi"
+    upload_file_path = os.path.join(path, local_file_name)
+    video = request.files['video']
+    video.save(upload_file_path)
+
+    blob_client = blob_service_client.get_blob_client(container = container_name, blob = local_file_name)
+    blob_client.upload_blob(upload_file_path)
+
+    local_file_name = str(uuid.uuid4()) + ".img"
+    upload_file_path_img = os.path.join(path, local_file_name)
+    img = request.files['img']
+    img.save(upload_file_path_img)
+
+    blob_client = blob_service_client.get_blob_client(container=container_name_img, blob= local_file_name)
+    blob_client.upload_blob(upload_file_path_img)
+
+    print('blob success')
+
+    await asyncio.sleep(1)
 
 if __name__ == '__main__':
+
     app.run(debug = True)
