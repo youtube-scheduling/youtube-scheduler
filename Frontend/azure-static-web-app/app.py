@@ -5,7 +5,8 @@ import requests
 import os,uuid,sys
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
 import json
-import asyncio, time
+import time
+#import asyncio
 
 app = Flask(__name__)
 
@@ -14,7 +15,7 @@ def get_infomation():
     
     if request.method == 'POST':
         start = time.time()
-        loop = asyncio.get_event_loop()
+        #loop = asyncio.get_event_loop()
         data = request.form
         cutted_tags = data['tag'].split(',')
 
@@ -32,7 +33,7 @@ def get_infomation():
         video = request.files['video']
         img = request.files['img']
 
-        loop.run_until_complete(asyncio.gather(upload_table(json_data), upload_blob(video,img)))
+        #loop.run_until_complete(asyncio.gather(upload_table(json_data), upload_blob(video,img)))
 
         #upload_blob(video,img)
 
@@ -43,7 +44,7 @@ def get_infomation():
 
     return render_template('add.html')
 
-async def upload_table(json_data):
+def upload_table(json_data):
     table_service = TableService(account_name='jsondataforyoutube',account_key ='RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==')
     table_service.create_table('tasktable')
 
@@ -53,10 +54,10 @@ async def upload_table(json_data):
 
     print('storage success')
 
-    await asyncio.sleep(1)
+    #await asyncio.sleep(1)
 
 
-async def upload_blob(video, img):
+def upload_blob(video, img):
     path = os.getcwd()
     path = path + '/data'
 
@@ -87,7 +88,7 @@ async def upload_blob(video, img):
 
     print('blob success')
 
-    await asyncio.sleep(1)
+    #await asyncio.sleep(1)
 
 if __name__ == '__main__':
 
