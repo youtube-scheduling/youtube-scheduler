@@ -13,10 +13,8 @@ upload_date_time = datetime.datetime(2021, 4, 17, 0, 0, 0).isoformat() + '.000Z'
 
 request_body = {
     'snippet': {
-        'categoryI': 19,
         'title': ' upload test',
-        'description': 'anyvideo',
-        'tags': ['fortest', 'Youtube API']
+        'description': 'anyvideo'
     },
     'status': {
         'privacyStatus': 'private',
@@ -32,3 +30,9 @@ response_upload = youtube.videos().insert(
     body=request_body,
     media_body=mediaFile
 ).execute()
+
+youtube.thumbnails().set(
+    videoId=response_upload.get('id'),
+    media_body=MediaFileUpload('1.png')
+).execute()
+
