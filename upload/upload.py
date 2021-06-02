@@ -2,6 +2,11 @@ import datetime
 from googleapiclient.http import MediaFileUpload
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
+import json
+
+with open("data.json", "r") as dt_json:
+
+    videodata=json.load(dt_json)
 
 CLIENT_SECRET_FILE: ${{secrets.jsonfile}}
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
@@ -9,12 +14,12 @@ flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
 credentials = flow.run_console()
 youtube = build('youtube', 'v3', credentials=credentials)
 
-upload_date_time = datetime.datetime(2021, 4, 17, 0, 0, 0).isoformat() + '.000Z'
+upload_date_time = videodata['uploaddate']
 
 request_body = {
     'snippet': {
-        'title': ' upload test',
-        'description': 'anyvideo'
+        'title': videodata['title'],
+        'description': videodata['description'],
     },
     'status': {
         'privacyStatus': 'private',
