@@ -1,20 +1,19 @@
-import datetime
+from auth import Create_Service
 from googleapiclient.http import MediaFileUpload
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
 import json
 
 with open("data.json", "r") as dt_json:
 
     videodata=json.load(dt_json)
 
-CLIENT_SECRET_FILE: ${{secrets.jsonfile}}
-SCOPES = ['https://www.googleapis.com/auth/youtube']
-flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
-credentials = flow.run_console()
-youtube = build('youtube', 'v3', credentials=credentials)
+CLIENT_SECRET_FILE = 'client_secret.json'
+API_NAME = 'youtube'
+API_VERSION = 'v3'
+SCOPES = ['https://www.googleapis.com/auth/youtube.upload']
 
-upload_date_time = videodata['uploaddate']
+service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+
+upload_date_time = "2021-04-17T00:00:00"
 
 request_body = {
     'snippet': {
@@ -25,19 +24,20 @@ request_body = {
         'privacyStatus': 'private',
         'publishAt': upload_date_time,
         'selfDeclaredMadeForKids': False, 
-    }
+    },
+    'notifySubscribers': False
 }
 
 mediaFile = MediaFileUpload('1.avi')
 
-response_upload = youtube.videos().insert(
+response_upload = service.videos().insert(
     part='snippet,status',
     body=request_body,
     media_body=mediaFile
 ).execute()
 
-youtube.thumbnails().set(
-    videoId=response_upload.get('id'),
-    media_body=MediaFileUpload('1.png')
-).execute()
 
+service.thumbnails().set(
+    videoId=response_upload.get('id'),
+    media_body=MediaFileUpload('thumbnail.png')
+).execute()
