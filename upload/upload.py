@@ -9,7 +9,7 @@ with open("data.json", "r") as dt_json:
     videodata=json.load(dt_json)
 
 CLIENT_SECRET_FILE: ${{secrets.jsonfile}}
-SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
+SCOPES = ['https://www.googleapis.com/auth/youtube']
 flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
 credentials = flow.run_console()
 youtube = build('youtube', 'v3', credentials=credentials)
