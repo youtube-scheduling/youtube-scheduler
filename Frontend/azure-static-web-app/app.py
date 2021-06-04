@@ -26,16 +26,15 @@ def get_infomation():
         dic_data['content'] = data['content']
         dic_data['date'] = data['date']
         dic_data['time'] = data['time']
-        json_data = json.dumps(dic_data)
 
-        #upload_table(json_data)
+        upload_table(dic_data)
 
         video = request.files['video']
         img = request.files['img']
 
         #loop.run_until_complete(asyncio.gather(upload_table(json_data), upload_blob(video,img)))
 
-        #upload_blob(video,img)
+        upload_blob(video,img)
 
         end = time.time()
 
@@ -44,11 +43,11 @@ def get_infomation():
 
     return render_template('add.html')
 
-def upload_table(json_data):
+def upload_table(dic_data):
     table_service = TableService(account_name='jsondataforyoutube',account_key ='RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==')
     table_service.create_table('tasktable')
 
-    task = {'PartitionKey': 'text_data', 'RowKey': "14",'description': json_data, 'priority': 250}
+    task = {'PartitionKey': 'text_data', 'RowKey': "14", 'title' : dic_data['title'],'description': dic_data['content'],'time': '2021-06-11'}
     #Rowkey need to change every upload
 
     table_service.insert_entity('tasktable', task)
