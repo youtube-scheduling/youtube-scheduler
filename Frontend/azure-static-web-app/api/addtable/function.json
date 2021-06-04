@@ -9,8 +9,7 @@
       "methods": [
         "get",
         "post"
-      ],
-      "route":"addtablee/{pk}/{rk}" 
+      ]
     },
     {
       "type": "http",

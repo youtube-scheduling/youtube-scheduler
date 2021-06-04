@@ -1,19 +1,19 @@
-from flask import Flask,request
-from flask import render_template, Flask, request
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
-import os, uuid
+import os, uuid, requests
 import azure.functions as func
 import logging
 
-@app.route('/video',methods=['POST'])
-def blob_upload():
-    if request.method == 'POST':
-        f_video=request.files['video']
-        f_img=request.files['img']
+def main():
+    url = "127.0.0.1:7071/addblob"
+    r = requests.post(url)
+    f_video=r.files['video']
+    f_img=r.files['img']
 
-        upload_blob(f_video, f_img)
+    req = requests.get(url)
 
-        return func.HttpResponse("Success")
+    upload_blob(req[0], req[1])
+
+    return func.HttpResponse("Success")
 
 
 def upload_blob(video, img):
@@ -48,7 +48,4 @@ def upload_blob(video, img):
 
     print('blob success')
 
-    #await asyncio.sleep(1)_
-
-if __name__ == "__main__":
-    app.run()
+    #await asyncio.sleep(1)
