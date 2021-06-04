@@ -77,24 +77,28 @@
         <p><label>예약 시간 : <input type="date" id="date"><input type="time" id="time" style="margin-left: 10px;"></label></p>
         <p><label>동영상 : <input class="file" type="file" name="video" ></label></p>
         <p><label>썸네일 : <input class="file" type="file" name="img" accept="image/*"></label></p>
-        <input type="submit" value="추가하기" id="btn">
     </div>
+    <form>
+	    <input type="submit" id="btn" onclick="get_para()" value = "추가하기">
+    </form>
+		 
     <div id="result"></div>
-    <script>
+    <script type = "text/javascript">
  
-        $("#btn").click(function(){ 
+        function get_para(){
+	    alert("제출됨");
+	    console.log("asdf");
+            //var dataArr = new Array();
+            //var dataObj = new Object();
+           // dataObj.title=$("#title").val();
+            //dataObj.content=$("#content").val();
+            //dataObj.tag=$("#tag").val();
+            //dataObj.category=$("#category").val();
+            //dataObj.date=$("#date").val();
+            //dataObj.time=$("#time").val();
 
-            var dataArr = new Array();
-            var dataObj = new Object();
-            dataObj.title=$("#title").val();
-            dataObj.content=$("#content").val();
-            dataObj.tag=$("#tag").val();
-            dataObj.category=$("#category").val();
-            dataObj.date=$("#date").val();
-            dataObj.time=$("#time").val();
-
-            dataArr.push(dataObj) ;
-            var jsonData = JSON.stringify(dataArr);
+            //dataArr.push(dataObj) ;
+            //var jsonData = JSON.stringify(dataArr);
  
             //$("#result").html(jsonData);    
         });
