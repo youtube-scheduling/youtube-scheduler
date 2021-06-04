@@ -18,7 +18,7 @@ def upload_table(dic_data):
     service = TableServiceClient.from_connection_string(conn_str=connection_string)
     table_client = table_service_client.get_table_client(table_name="mytable")
 
-    task = {'PartitionKey': dic_data['PartitionKey'], 'RowKey': dic_data['RowKey'], 'title' : dic_data['title'],'description': dic_data['content'],'time': '2021-06-11'}
+    task = {'PartitionKey': str(uuid.uuid4()), 'RowKey': str(uuid.uuid4()), 'title' : dic_data['title'],'description': dic_data['content'],'time': '2021-06-11'}
     #Rowkey need to change every upload
 
     task = table_client.create_entity(entity= task)
