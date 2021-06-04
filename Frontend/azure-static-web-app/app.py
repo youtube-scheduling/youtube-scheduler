@@ -49,6 +49,7 @@ def upload_table(json_data):
     table_service.create_table('tasktable')
 
     task = {'PartitionKey': 'text_data', 'RowKey': "14",'description': json_data, 'priority': 250}
+    #Rowkey need to change every upload
 
     table_service.insert_entity('tasktable', task)
 
@@ -62,7 +63,7 @@ def upload_blob(video, img):
     path = path + '/data'
 
 
-    blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=jsondataforyoutube;AccountKey=RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==;EndpointSuffix=core.windows.net")
+    blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=jsondataforyoutube;AccountKey=RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==;EndpointSuffix=core.windows.net") # this is my table key
     container_name = "fileforyoutube"
     container_name_img = "imgforyoutube"
 
@@ -70,6 +71,7 @@ def upload_blob(video, img):
     #container_client = blob_service_client.create_container(container_name)
     #container_client = blob_service_client.create_container(container_name_img)
 
+    #str(uuid.uuid4()) is the name of file
     local_file_name = str(uuid.uuid4()) + ".avi"
     upload_file_path = os.path.join(path, local_file_name)
     video = request.files['video']
