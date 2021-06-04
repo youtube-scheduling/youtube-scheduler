@@ -62,7 +62,7 @@
                                             "includedEventTypes": [
                                                 "Microsoft.Storage.BlobCreated"
                                             ],
-                                            "subjectBeginsWith": "/blobServices/default/containers/ref-files/blobs/videos/"
+                                            "subjectBeginsWith": "/blobServices/default/containers/fileforyoutube"
                                         },
                                         "topic": "[parameters('storageAccounts_videodatas_externalid')]"
                                     }
@@ -97,9 +97,29 @@
                                 "path": "/datasets/default/GetFileContentByPath",
                                 "queries": {
                                     "inferContentType": true,
-                                    "path": "/ref-files/thumbnails/@{variables('fileName')}.@{body('엔터티_가져오기')?['thumbnail']}",
+                                    "path": "/imgforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['thumbnail']}",
                                     "queryParametersSingleEncoded": true
                                 }
+                            }
+                        },
+                        "thumbnail_삭제": {
+                            "runAfter": {
+                                "youtubeupload": [
+                                    "Succeeded",
+                                    "Skipped",
+                                    "Failed",
+                                    "TimedOut"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "delete",
+                                "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/imgforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['thumbnail']))}"
                             }
                         },
                         "video_가져오기": {
@@ -119,33 +139,35 @@
                                 "path": "/datasets/default/GetFileContentByPath",
                                 "queries": {
                                     "inferContentType": true,
-                                    "path": "/ref-files/videos/@{variables('fileName')}.@{body('엔터티_가져오기')?['video']}",
+                                    "path": "/fileforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['video']}",
                                     "queryParametersSingleEncoded": true
                                 }
+                            }
+                        },
+                        "video_삭제": {
+                            "runAfter": {
+                                "thumbnail_삭제": [
+                                    "Succeeded",
+                                    "Failed",
+                                    "Skipped",
+                                    "TimedOut"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "delete",
+                                "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/fileforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['video']))}"
                             }
                         },
                         "youtubeupload": {
                             "runAfter": {
                                 "thumbnail_가져오기": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Function",
-                            "inputs": {
-                                "body": {
-                                    "table": "@body('엔터티_가져오기')",
-                                    "thumbnail": "@body('thumbnail_가져오기')",
-                                    "video": "@body('video_가져오기')"
-                                },
-                                "function": {
-                                    "id": "[concat(parameters('sites_YVSfunction_externalid'), '/functions/youtubeupload')]"
-                                },
-                                "method": "POST"
-                            }
-                        },
-                        "youtubeupload_without_thumbnail": {
-                            "runAfter": {
-                                "thumbnail_가져오기": [
+                                    "Succeeded",
                                     "Failed",
                                     "Skipped",
                                     "TimedOut"
@@ -155,6 +177,7 @@
                             "inputs": {
                                 "body": {
                                     "table": "@body('엔터티_가져오기')",
+                                    "thumbnail": "@body('thumbnail_가져오기')",
                                     "video": "@body('video_가져오기')"
                                 },
                                 "function": {
@@ -201,8 +224,70 @@
                                     }
                                 },
                                 "method": "get",
-                                "path": "/Tables/@{encodeURIComponent('refdatas')}/entities(PartitionKey='@{encodeURIComponent('data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
+                                "path": "/Tables/@{encodeURIComponent('tasktable')}/entities(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
                             }
+                        },
+                        "조건": {
+                            "actions": {
+                                "성공": {
+                                    "runAfter": {
+                                        "엔터티_삭제": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Terminate",
+                                    "inputs": {
+                                        "runStatus": "Succeeded"
+                                    }
+                                },
+                                "엔터티_삭제": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuretables']['connectionId']"
+                                            }
+                                        },
+                                        "method": "delete",
+                                        "path": "/Tables/@{encodeURIComponent('tasktable')}/entities/etag(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "video_삭제": [
+                                    "Succeeded",
+                                    "Failed",
+                                    "Skipped",
+                                    "TimedOut"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "실패": {
+                                        "runAfter": {},
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runError": {
+                                                "code": "500",
+                                                "message": "youtube upload not launched"
+                                            },
+                                            "runStatus": "Failed"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@outputs('youtubeupload')['statusCode']",
+                                            200
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
                         }
                     },
                     "outputs": {}
