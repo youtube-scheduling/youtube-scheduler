@@ -1,10 +1,13 @@
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
-import os, uuid
+import os, uuid, requests
 import azure.functions as func
 import logging
 
-def blob_upload():
-    url = "127.0.0.1:5000/video"
+def main():
+    url = "127.0.0.1:7071/addblob"
+    r = requests.post(url)
+    f_video=r.files['video']
+    f_img=r.files['img']
 
     req = requests.get(url)
 
@@ -45,7 +48,4 @@ def upload_blob(video, img):
 
     print('blob success')
 
-    #await asyncio.sleep(1)_
-
-if __name__ == "__main__":
-    app.run()
+    #await asyncio.sleep(1)

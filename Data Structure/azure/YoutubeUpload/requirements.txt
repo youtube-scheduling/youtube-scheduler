@@ -3,5 +3,9 @@
 # Manually managing azure-functions-worker may cause unexpected issues
 
 azure-functions
-azure-data-tables
 azure-storage-blob
+requests
+google-api-python-client
+google-auth-oauthlib
+google-auth-httplib2
+oauth2client
