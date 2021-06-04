@@ -1,319 +1,279 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "workflows_YVSlogic_name": {
-            "defaultValue": "YVSlogic",
-            "type": "String"
-        },
-        "storageAccounts_videodatas_externalid": {
-            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Storage/storageAccounts/videodatas",
-            "type": "String"
-        },
-        "sites_YVSfunction_externalid": {
-            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/sites/YVSfunction",
-            "type": "String"
-        },
-        "connections_azureblob_externalid": {
-            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureblob",
-            "type": "String"
-        },
-        "connections_azureeventgrid_externalid": {
-            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureeventgrid",
-            "type": "String"
-        },
-        "connections_azuretables_externalid": {
-            "defaultValue": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azuretables",
-            "type": "String"
-        }
-    },
-    "variables": {},
-    "resources": [
-        {
-            "type": "Microsoft.Logic/workflows",
-            "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_YVSlogic_name')]",
-            "location": "koreacentral",
-            "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "thumbnail_가져오기": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
                         }
                     },
-                    "triggers": {
-                        "리소스_이벤트가_발생하는_경우": {
-                            "splitOn": "@triggerBody()",
-                            "type": "ApiConnectionWebhook",
-                            "inputs": {
-                                "body": {
-                                    "properties": {
-                                        "destination": {
-                                            "endpointType": "webhook",
-                                            "properties": {
-                                                "endpointUrl": "@{listCallbackUrl()}"
-                                            }
-                                        },
-                                        "filter": {
-                                            "includedEventTypes": [
-                                                "Microsoft.Storage.BlobCreated"
-                                            ],
-                                            "subjectBeginsWith": "/blobServices/default/containers/fileforyoutube"
-                                        },
-                                        "topic": "[parameters('storageAccounts_videodatas_externalid')]"
-                                    }
-                                },
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
-                                    }
-                                },
-                                "path": "/subscriptions/@{encodeURIComponent('df794b46-43e0-4cf8-ae3a-a160b5c659d4')}/providers/@{encodeURIComponent('Microsoft.Storage.StorageAccounts')}/resource/eventSubscriptions",
-                                "queries": {
-                                    "x-ms-api-version": "2017-09-15-preview"
-                                }
-                            }
-                        }
-                    },
-                    "actions": {
-                        "thumbnail_가져오기": {
-                            "runAfter": {
-                                "video_가져오기": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/datasets/default/GetFileContentByPath",
-                                "queries": {
-                                    "inferContentType": true,
-                                    "path": "/imgforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['thumbnail']}",
-                                    "queryParametersSingleEncoded": true
-                                }
-                            }
-                        },
-                        "thumbnail_삭제": {
-                            "runAfter": {
-                                "youtubeupload": [
-                                    "Succeeded",
-                                    "Skipped",
-                                    "Failed",
-                                    "TimedOut"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
-                                    }
-                                },
-                                "method": "delete",
-                                "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/imgforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['thumbnail']))}"
-                            }
-                        },
-                        "video_가져오기": {
-                            "runAfter": {
-                                "엔터티_가져오기": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/datasets/default/GetFileContentByPath",
-                                "queries": {
-                                    "inferContentType": true,
-                                    "path": "/fileforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['video']}",
-                                    "queryParametersSingleEncoded": true
-                                }
-                            }
-                        },
-                        "video_삭제": {
-                            "runAfter": {
-                                "thumbnail_삭제": [
-                                    "Succeeded",
-                                    "Failed",
-                                    "Skipped",
-                                    "TimedOut"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
-                                    }
-                                },
-                                "method": "delete",
-                                "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/fileforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['video']))}"
-                            }
-                        },
-                        "youtubeupload": {
-                            "runAfter": {
-                                "thumbnail_가져오기": [
-                                    "Succeeded",
-                                    "Failed",
-                                    "Skipped",
-                                    "TimedOut"
-                                ]
-                            },
-                            "type": "Function",
-                            "inputs": {
-                                "body": {
-                                    "table": "@body('엔터티_가져오기')",
-                                    "thumbnail": "@body('thumbnail_가져오기')",
-                                    "video": "@body('video_가져오기')"
-                                },
-                                "function": {
-                                    "id": "[concat(parameters('sites_YVSfunction_externalid'), '/functions/youtubeupload')]"
-                                },
-                                "method": "POST"
-                            }
-                        },
-                        "변수_설정": {
-                            "runAfter": {
-                                "변수_초기화": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "SetVariable",
-                            "inputs": {
-                                "name": "fileName",
-                                "value": "@{substring(triggerBody()?['subject'], add(lastIndexOf(triggerBody()?['subject'], '/'), 1), sub(sub(lastIndexOf(triggerBody()?['subject'], '.'), lastIndexOf(triggerBody()?['subject'], '/')), 1))}"
-                            }
-                        },
-                        "변수_초기화": {
-                            "runAfter": {},
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "fileName",
-                                        "type": "string"
-                                    }
-                                ]
-                            }
-                        },
-                        "엔터티_가져오기": {
-                            "runAfter": {
-                                "변수_설정": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuretables']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/Tables/@{encodeURIComponent('tasktable')}/entities(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
-                            }
-                        },
-                        "조건": {
-                            "actions": {
-                                "성공": {
-                                    "runAfter": {
-                                        "엔터티_삭제": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Terminate",
-                                    "inputs": {
-                                        "runStatus": "Succeeded"
-                                    }
-                                },
-                                "엔터티_삭제": {
-                                    "runAfter": {},
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['azuretables']['connectionId']"
-                                            }
-                                        },
-                                        "method": "delete",
-                                        "path": "/Tables/@{encodeURIComponent('tasktable')}/entities/etag(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
-                                    }
-                                }
-                            },
-                            "runAfter": {
-                                "video_삭제": [
-                                    "Succeeded",
-                                    "Failed",
-                                    "Skipped",
-                                    "TimedOut"
-                                ]
-                            },
-                            "else": {
-                                "actions": {
-                                    "실패": {
-                                        "runAfter": {},
-                                        "type": "Terminate",
-                                        "inputs": {
-                                            "runError": {
-                                                "code": "500",
-                                                "message": "youtube upload not launched"
-                                            },
-                                            "runStatus": "Failed"
-                                        }
-                                    }
-                                }
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@outputs('youtubeupload')['statusCode']",
-                                            200
-                                        ]
-                                    }
-                                ]
-                            },
-                            "type": "If"
-                        }
-                    },
-                    "outputs": {}
+                    "method": "get",
+                    "path": "/datasets/default/GetFileContentByPath",
+                    "queries": {
+                        "inferContentType": true,
+                        "path": "/imgforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['thumbnail']}",
+                        "queryParametersSingleEncoded": true
+                    }
                 },
-                "parameters": {
-                    "$connections": {
-                        "value": {
-                            "azureblob": {
-                                "connectionId": "[parameters('connections_azureblob_externalid')]",
-                                "connectionName": "azureblob",
-                                "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureblob"
+                "runAfter": {
+                    "video_가져오기": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "thumbnail_삭제": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "delete",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/imgforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['thumbnail']))}"
+                },
+                "runAfter": {
+                    "youtubeupload": [
+                        "Succeeded",
+                        "Skipped",
+                        "Failed",
+                        "TimedOut"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "video_가져오기": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/GetFileContentByPath",
+                    "queries": {
+                        "inferContentType": true,
+                        "path": "/fileforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['video']}",
+                        "queryParametersSingleEncoded": true
+                    }
+                },
+                "runAfter": {
+                    "엔터티_가져오기": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "video_삭제": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "delete",
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/fileforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['video']))}"
+                },
+                "runAfter": {
+                    "thumbnail_삭제": [
+                        "Succeeded",
+                        "Failed",
+                        "Skipped",
+                        "TimedOut"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "youtubeupload": {
+                "inputs": {
+                    "body": {
+                        "table": "@body('엔터티_가져오기')",
+                        "thumbnail": "@body('thumbnail_가져오기')",
+                        "video": "@body('video_가져오기')"
+                    },
+                    "function": {
+                        "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/sites/YVSfunction/functions/youtubeupload"
+                    },
+                    "method": "POST"
+                },
+                "runAfter": {
+                    "thumbnail_가져오기": [
+                        "Succeeded",
+                        "Failed",
+                        "Skipped",
+                        "TimedOut"
+                    ]
+                },
+                "type": "Function"
+            },
+            "변수_설정": {
+                "inputs": {
+                    "name": "fileName",
+                    "value": "@{substring(triggerBody()?['subject'], add(lastIndexOf(triggerBody()?['subject'], '/'), 1), sub(sub(lastIndexOf(triggerBody()?['subject'], '.'), lastIndexOf(triggerBody()?['subject'], '/')), 1))}"
+                },
+                "runAfter": {
+                    "변수_초기화": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "변수_초기화": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "fileName",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "엔터티_가져오기": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azuretables']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/Tables/@{encodeURIComponent('tasktable')}/entities(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
+                },
+                "runAfter": {
+                    "변수_설정": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "조건": {
+                "actions": {
+                    "성공": {
+                        "inputs": {
+                            "runStatus": "Succeeded"
+                        },
+                        "runAfter": {
+                            "엔터티_삭제": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Terminate"
+                    },
+                    "엔터티_삭제": {
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azuretables']['connectionId']"
+                                }
                             },
-                            "azureeventgrid": {
-                                "connectionId": "[parameters('connections_azureeventgrid_externalid')]",
-                                "connectionName": "azureeventgrid",
-                                "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureeventgrid"
+                            "method": "delete",
+                            "path": "/Tables/@{encodeURIComponent('tasktable')}/entities/etag(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
+                        },
+                        "runAfter": {},
+                        "type": "ApiConnection"
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "실패": {
+                            "inputs": {
+                                "runError": {
+                                    "code": "500",
+                                    "message": "youtube upload not launched"
+                                },
+                                "runStatus": "Failed"
                             },
-                            "azuretables": {
-                                "connectionId": "[parameters('connections_azuretables_externalid')]",
-                                "connectionName": "azuretables",
-                                "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azuretables"
-                            }
+                            "runAfter": {},
+                            "type": "Terminate"
                         }
                     }
+                },
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@outputs('youtubeupload')['statusCode']",
+                                200
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "video_삭제": [
+                        "Succeeded",
+                        "Failed",
+                        "Skipped",
+                        "TimedOut"
+                    ]
+                },
+                "type": "If"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "리소스_이벤트가_발생하는_경우": {
+                "inputs": {
+                    "body": {
+                        "properties": {
+                            "destination": {
+                                "endpointType": "webhook",
+                                "properties": {
+                                    "endpointUrl": "@{listCallbackUrl()}"
+                                }
+                            },
+                            "filter": {
+                                "includedEventTypes": [
+                                    "Microsoft.Storage.BlobCreated"
+                                ],
+                                "subjectBeginsWith": "/blobServices/default/containers/fileforyoutube"
+                            },
+                            "topic": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Storage/storageAccounts/videodatas"
+                        }
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
+                        }
+                    },
+                    "path": "/subscriptions/@{encodeURIComponent('df794b46-43e0-4cf8-ae3a-a160b5c659d4')}/providers/@{encodeURIComponent('Microsoft.Storage.StorageAccounts')}/resource/eventSubscriptions",
+                    "queries": {
+                        "x-ms-api-version": "2017-09-15-preview"
+                    }
+                },
+                "splitOn": "@triggerBody()",
+                "type": "ApiConnectionWebhook"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureblob": {
+                    "connectionId": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureblob",
+                    "connectionName": "azureblob",
+                    "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureblob"
+                },
+                "azureeventgrid": {
+                    "connectionId": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureeventgrid",
+                    "connectionName": "azureeventgrid",
+                    "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureeventgrid"
+                },
+                "azuretables": {
+                    "connectionId": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azuretables",
+                    "connectionName": "azuretables",
+                    "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azuretables"
                 }
             }
         }
-    ]
+    }
 }
