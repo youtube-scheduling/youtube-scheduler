@@ -9,7 +9,7 @@ import azure.functions as func
 def main(req: func.HttpRequest) -> func.HttpResponse:
     body=req.get_json()
     #print(type(body))
-    dic_data = json.loads(body)
+    #dic_data = json.loads(body)
     upload_table(body)
     return func.HttpResponse("Success")
 

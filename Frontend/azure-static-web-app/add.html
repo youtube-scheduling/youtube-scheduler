@@ -77,16 +77,17 @@
         <p><label>예약 시간 : <input type="date" id="date"><input type="time" id="time" style="margin-left: 10px;"></label></p>
         <p><label>동영상 : <input class="file" type="file" name="video" ></label></p>
         <p><label>썸네일 : <input class="file" type="file" name="img" accept="image/*"></label></p>
+        <input type="submit" id="btn" value = "추가하기">
     </div>
-    <form>
-	    <input type="submit" id="btn" onclick="get_para()" value = "추가하기">
-    </form>
+
+	   
+
 		 
     <div id="result"></div>
     <script type = "text/javascript">
  
-        function get_para(){
-	    alert("제출됨");
+        $("[id^=btn]").click(function(){
+	        //alert("제출됨");
 	    
             //var dataArr = new Array();
             var dataObj = new Object();
@@ -110,9 +111,9 @@
                 body:jsonData
                 }).then((response) => console.log(response))
                   .catch((error) => console.log(error));
-                  location.replace("http://127.0.0.1:5500/index.html")
+                  //location.replace("http://127.0.0.1:5501/index.html")
             //$("#result").html(jsonData);    
-        };
+        });
     </script>
 
 </body>
