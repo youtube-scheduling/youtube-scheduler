@@ -47,7 +47,7 @@ def upload_table(dic_data):
     table_service = TableService(account_name='jsondataforyoutube',account_key ='RAmtG8i+T8bpsY9aZZBedsODThcvCh1VwHyU/EHfOEyB11UDImCpia+gHyou8bLyRqsIbjDdwx3SXCpfZWgyRA==')
     table_service.create_table('tasktable')
 
-    task = {'PartitionKey': 'text_data', 'RowKey': "14", 'title' : dic_data['title'],'description': dic_data['content'],'time': '2021-06-11'}
+    task = {'PartitionKey': 'text_data', 'RowKey': str(uuid.uuid4()), 'title' : dic_data['title'],'description': dic_data['content'],'time': '2021-06-11'}
     #Rowkey need to change every upload
 
     table_service.insert_entity('tasktable', task)
