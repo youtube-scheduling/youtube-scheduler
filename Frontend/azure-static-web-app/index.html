@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Vanilla JavaScript App</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <main>
+    <div style="text-align:center;">
+    <input type="button" value="TABLE 저장" id="table_btn" onclick="location.href='add.html'">
+    </div>
+    <div id="result"></div>
+  </main>
+
+  <script>
+
+        function replaceAll(strTemp, strValue1, strValue2){ 
+            while(1){
+                if( strTemp.indexOf(strValue1) != -1 )
+                    strTemp = strTemp.replace(strValue1, strValue2);
+                else
+                    break;
+            }
+            return strTemp;
+        }
+        
+        //fetch("http://127.0.0.1:7071/api/getlist")
+        //    .then(response => console.log(response.text()));
+        
+        (async () => {
+            let response = await fetch("http://127.0.0.1:7071/api/getlist");
+            let result=await response.text();
+            result=unescape(replaceAll(result, "\\", "%")); //유니코드를 한글로 변환
+            result=replaceAll(result,"'",'"'); //객체 변환을 위해 쌍따옴표로 변환
+            console.log(result);
+            var obj=JSON.parse(result);
+            var cnt=1
+            for (key in obj){
+                console.log("key: "+key+", value: "+obj[key]["title"]);
+                $("#result").append("<div id=container><div id='list'>"+obj[key]["title"]+"</div><input type='button' value='추가하기' id='btn"+cnt+"' name="+key+"></div>");
+                $("#btn"+cnt).after("<input type='button' value='삭제하기' id='del_btn"+cnt+"'name="+key+">");
+                $("#del_btn"+cnt).after("<input type='button' value='수정하기' id='edit_btn"+cnt+"'name="+key+">");
+                cnt+=1;
+            }
+
+            //추가하기 버튼 누르면 blob.html 페이지로 이동
+            $("[id^=btn]").click(function(){
+              var row_key=$(this).attr("name");
+              console.log(row_key);
+              location.href="./blob.html";
+            });
+
+            //삭제하기 버튼 누르면 deltable api 호출
+            $("[id^=del_btn]").click(function(){
+              //var row_key=$(this).attr("name");
+              var row_key="brand2"
+              var partition_key="color"
+              console.log(row_key)
+              fetch("http://127.0.0.1:7071/api/deltable/"+partition_key+"/"+row_key)
+                .then((response) => console.log(response))
+                .then((data) => console.log(data));
+                alert("삭제되었습니다!")
+                location.reload()
+            });
+
+            //수정하기 버튼 누르면 add.html 페이지로 이동 후 데이터 수정하여 테이블에 업데이트 
+            $("[id^=edit_btn]").click(function(){
+              var row_key=$(this).attr("name");
+              var partition_key="data"
+              location.href="./edit.html?pk="+partition_key+"&rk="+row_key;
+              /*console.log(row_key);
+              fetch("http://127.0.0.1:7071/api/edittable/"+partition_key+"/"+row_key)
+                .then((response) => console.log(response))*/
+            });
+        })();
+
+    </script>
+</body>
+
+</html>
