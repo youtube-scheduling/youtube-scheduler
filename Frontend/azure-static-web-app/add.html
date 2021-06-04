@@ -87,19 +87,30 @@
  
         function get_para(){
 	    alert("제출됨");
-	    console.log("asdf");
+	    
             //var dataArr = new Array();
-            //var dataObj = new Object();
-           // dataObj.title=$("#title").val();
-            //dataObj.content=$("#content").val();
-            //dataObj.tag=$("#tag").val();
-            //dataObj.category=$("#category").val();
-            //dataObj.date=$("#date").val();
-            //dataObj.time=$("#time").val();
+            var dataObj = new Object();
+            dataObj.title=$("#title").val();
+            dataObj.content=$("#content").val();
+            dataObj.tag=$("#tag").val();
+            dataObj.category=$("#category").val();
+            dataObj.date=$("#date").val();
+            dataObj.time=$("#time").val();
 
             //dataArr.push(dataObj) ;
-            //var jsonData = JSON.stringify(dataArr);
- 
+            console.log(dataObj);
+            var jsonData = JSON.stringify(dataObj);
+            fetch("http://127.0.0.1:7071/api/addtable/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credentials" : "true",
+                    "Access-Control-Allow-Origin":"*"
+                  },
+                body:jsonData
+                }).then((response) => console.log(response))
+                  .catch((error) => console.log(error));
+                  location.replace("http://127.0.0.1:5500/index.html")
             //$("#result").html(jsonData);    
         };
     </script>
