@@ -1,15 +1,14 @@
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, __version__
-import os, uuid
+import os, uuid, requests, sys
 import azure.functions as func
 import logging
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    if request.method == 'POST':
-        f_video=request.files['video']
-        f_img=request.files['img']
-
-        upload_blob(f_video, f_img)
-
+        video=req.files["videoFile"]
+        #img=req.files['imgFile']
+        #print(video.filename)
+        #upload_blob(video,img)
+ 
         return func.HttpResponse("Success")
 
 
@@ -29,7 +28,6 @@ def upload_blob(video, img):
     #str(uuid.uuid4()) is the name of file
     local_file_name = str(uuid.uuid4()) + ".avi"
     upload_file_path = os.path.join(path, local_file_name)
-    video = request.files['video']
     video.save(upload_file_path)
 
     blob_client = blob_service_client.get_blob_client(container = container_name, blob = local_file_name)
@@ -37,7 +35,6 @@ def upload_blob(video, img):
 
     local_file_name = str(uuid.uuid4()) + ".img"
     upload_file_path_img = os.path.join(path, local_file_name)
-    img = request.files['img']
     img.save(upload_file_path_img)
 
     blob_client = blob_service_client.get_blob_client(container=container_name_img, blob= local_file_name)
@@ -47,5 +44,3 @@ def upload_blob(video, img):
 
     #await asyncio.sleep(1)_
 
-if __name__ == "__main__":
-    app.run()

@@ -44,10 +44,11 @@
     <script>
  
         $("#btn").click(function(){ 
-            
+  
             var formData=new FormData();
             formData.append('videoFile',document.getElementById('video').files[0]);
             formData.append('imgFile',document.getElementById('img').files[0]);
+            //document.write(formData.get('imgFile'))
             var xhr=new XMLHttpRequest();
             xhr.onload = function() {
                 if (xhr.status === 200 || xhr.status === 201) {
@@ -56,7 +57,7 @@
                   console.error(xhr.responseText);
                 }
               };
-              xhr.open('POST', 'http://127.0.0.1:5000/video');
+              xhr.open('POST', 'http://127.0.0.1:7071/api/addblob2');
               xhr.send(formData); 
            
         });

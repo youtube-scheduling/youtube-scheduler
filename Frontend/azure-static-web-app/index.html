@@ -96,8 +96,8 @@
 
             //삭제하기 버튼 누르면 deltable api 호출
             $("[id^=del_btn]").click(function(){
-              //var row_key=$(this).attr("name");
-              var row_key="brand2"
+              var row_key=$(this).attr("name");
+              //var row_key="brand2"
               var partition_key="color"
               console.log(row_key)
               fetch("http://127.0.0.1:7071/api/deltable/"+partition_key+"/"+row_key)
