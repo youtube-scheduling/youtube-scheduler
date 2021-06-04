@@ -38,14 +38,13 @@
 **정형 데이터 | Table Storage**
 ---
 
-- PartitionKey = "data"
+- PartitionKey = "text_data"
 - RowKey = randomkey
 - title
 - description
-- tags
-- categoryId
-- video file extension
-- thubmnail file extension (default, medium, high)
+- video = file extension
+- thubmnail = file extension
+- time = YYYY-MM-DDTHH-MM-SS
 
 **비정형 데이터 | Blob Storage**
 ---
