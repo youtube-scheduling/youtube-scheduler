@@ -34,10 +34,10 @@
     </style>
 </head>
 <body>
-    <form id='image' enctype="multipart/form-data">
+    <form id='image'enctype="multipart/form-data">
         <p><label>동영상 : <input type="file" id="video"></label></p>
         <p><label>썸네일 : <input type="file" id="img" accept="image/*"></label></p>
-        <button id="btn">입력하기</button>
+        <button id="btn" type="button">입력하기</button>
     </form>
     <div id="result"></div>
 
@@ -46,20 +46,18 @@
         $("#btn").click(function(){ 
   
             var formData=new FormData();
-            formData.append('videoFile',document.getElementById('video').files[0]);
-            formData.append('imgFile',document.getElementById('img').files[0]);
-            //document.write(formData.get('imgFile'))
-            var xhr=new XMLHttpRequest();
-            xhr.onload = function() {
-                if (xhr.status === 200 || xhr.status === 201) {
-                  console.log(xhr.responseText);
-                } else {
-                  console.error(xhr.responseText);
-                }
-              };
-              xhr.open('POST', 'http://127.0.0.1:7071/api/addblob2');
-              xhr.send(formData); 
-           
+            formData.append('videoFile',$("#video")[0].files[0]);
+            formData.append('imgFile',$("#img")[0].files[0]);
+            /*for (var pair of formData.entries()) {
+                console.log(pair[0]+ ', ' + pair[1]); 
+            }*/
+            fetch('http://127.0.0.1:7071/api/addblob2',{
+                method:'POST',
+                enctype:'multipart/form-data',
+                body:formData
+            }).then((response) => console.log(response))
+            .catch((error) => console.log(error));
+            location.replace("http://127.0.0.1:5501");
         });
     </script>
 
