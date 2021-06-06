@@ -29,7 +29,7 @@ def upload_blob(video, img):
     #local_file_name = str(uuid.uuid4()) + ".avi"
     #upload_file_path = os.path.join(path, local_file_name)
     upload_file_path=video.filename
-    video.save(upload_file_path)
+    #video.save(upload_file_path)
 
     #blob_client = blob_service_client.get_blob_client(container = container_name, blob = local_file_name)
     #blob_client.upload_blob(upload_file_path)
