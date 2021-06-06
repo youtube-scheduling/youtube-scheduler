@@ -1,0 +1,7 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=storageforys;AccountKey=sTNZfBUGl7EbNxi7duoUuzXnBuWPdfVIcgn4HzDu2y8q6BVz9oJNxr0XkJD2lFmZBsNHVpSbz8rbEzLFLZHfbQ==;EndpointSuffix=core.windows.net",
+    "FUNCTIONS_WORKER_RUNTIME": "python"
+  }
+}
