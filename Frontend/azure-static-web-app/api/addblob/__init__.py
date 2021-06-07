@@ -21,13 +21,13 @@ def upload_blob(video, img):
     path = path + '/data'
 
 
-    blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=sh0909storage;AccountKey=Sg/73AcJ6ah/DP38yZ087H4YBSXc0irmBKZd2C5o3I6eFhDWhQeH1zAJ45U3f9d86CdYJVaeY5wRWarKoF1QoA==;EndpointSuffix=core.windows.net") # this is my table key
+    blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=storageforys;AccountKey=nM7gq0Ht+3Aoy5RFzaA/epWvi/w8aiMvPTIqmMDci65K9aogBIfB1o4E6bYHygk0sOzN8eA6OKr2d0CdU/mMTg==;EndpointSuffix=core.windows.net") # this is my table key
     container_name = "fileforyoutube"
     container_name_img = "imgforyoutube"
 
     #initial code for create blob container
-    container_client = blob_service_client.create_container(container_name)
-    container_client = blob_service_client.create_container(container_name_img)
+    #container_client = blob_service_client.create_container(container_name)
+    #container_client = blob_service_client.create_container(container_name_img)
 
     #str(uuid.uuid4()) is the name of file
     local_file_name = str(uuid.uuid4()) + ".avi"
