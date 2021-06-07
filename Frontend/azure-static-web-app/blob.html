@@ -58,6 +58,8 @@
             var formData=new FormData();
             formData.append('videoFile',$("#video")[0].files[0]);
             formData.append('imgFile',$("#img")[0].files[0]);
+            formData.append('rowKey', row_key);
+            console.log(row_key);
             /*for (var pair of formData.entries()) {
                 console.log(pair[0]+ ', ' + pair[1]); 
             }*/

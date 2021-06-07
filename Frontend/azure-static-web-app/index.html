@@ -112,7 +112,7 @@
             $("[id^=btn]").click(function(){
               var row_key=$(this).attr("rk");
               console.log(row_key);
-              location.href="./blob.html";
+              location.href="./blob.html?row_key="+row_key;
             });
 
             //삭제하기 버튼 누르면 deltable api 호출
