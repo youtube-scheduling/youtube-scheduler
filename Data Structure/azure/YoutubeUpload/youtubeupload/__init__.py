@@ -56,17 +56,16 @@ def Create_Service(container, client_secret_file, api_name, api_version, *scopes
         return None
 
 
-def toKorDateTime(dateTime):
-    date, time = dateTime.split('T') # YYYY-MM-DD, HH:MM:SS
+def toKorDateTime(date, time):
     year, month, day = date.split('-')
-    hour, minute, second = time.split(':')
+    hour, minute = time.split(':')
     
     year = int(year)
     month = int(month)
     day = int(day)
     hour = int(hour)
     minute = int(minute)
-    second = int(second)
+    second = 0
 
     dateTime = datetime.datetime(year, month, day, hour, minute, second)
     korDateTime = dateTime + datetime.timedelta(hours = -9)
@@ -94,28 +93,27 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     video_name = req['video']
     video_blob = fileforyoutube.get_blob_client(video_name)
-    vid_ext = table['video']
-    with open('/tmp/v.' + vid_ext, 'wb+') as my_video:
+    with open('/tmp/' + video_name, 'wb+') as my_video:
         download_stream = video_blob.download_blob()
         my_video.write(download_stream.readall())
 
     try:
         thumbnail_name = req['thumbnail']
         thumbnail_blob = imgforyoutube.get_blob_client(thumbnail_name)
-        thum_ext = table['thumbnail']
-        with open('/tmp/t.' + thum_ext, 'wb+') as my_thumbnail:
+        with open('/tmp/' + thumbnail_name, 'wb+') as my_thumbnail:
             download_stream = thumbnail_blob.download_blob()
             my_thumbnail.write(download_stream.readall())
     except:
         thumbnail = None
 
-    schedule = table['time'] # String type
-    schedule = toKorDateTime(schedule) # schedule to YYYY-MM-DDTHH:MM:SS
+    date = table['date'] # String type
+    time = table['time']
+    schedule = toKorDateTime(date, time) # schedule to YYYY-MM-DDTHH:MM:SS
     snippet = {
             #'categoryId' : table['categoryId'],
             'title' : table['title'],
             'description' : table['description'],
-            #'tags' : table['tags'].split(', ')
+            'tags' : table['tag'].split(', ')
     }
     
     try: 
@@ -136,7 +134,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             'notifySubscribers': False
         }
 
-        mediaFile = MediaFileUpload('/tmp/v.' + vid_ext)
+        mediaFile = MediaFileUpload('/tmp/' + video_name)
 
         try:
             response_upload = service.videos().insert(
@@ -148,7 +146,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             try:
                 service.thumbnails().set(
                     videoId=response_upload.get('id'),
-                    media_body=MediaFileUpload('/tmp/t.' + thum_ext)
+                    media_body=MediaFileUpload('/tmp/' + thumbnail_name)
                 ).execute()
             except:
                 pass
