@@ -62,7 +62,7 @@
  
         $("#btn").click(function(){ 
             
-            var row_key = getParameterByName(row_key);
+            var row_key = getParameterByName('row_key');
             var formData=new FormData();
             formData.append('videoFile',$("#video")[0].files[0]);
             formData.append('imgFile',$("#img")[0].files[0]);
