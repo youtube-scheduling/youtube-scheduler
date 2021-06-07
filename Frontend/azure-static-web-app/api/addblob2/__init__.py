@@ -26,20 +26,20 @@ def upload_blob(video, img):
     #container_client = blob_service_client.create_container(container_name_img)
 
     #str(uuid.uuid4()) is the name of file
-    #local_file_name = str(uuid.uuid4()) + ".avi"
-    #upload_file_path = os.path.join(path, local_file_name)
+    local_file_name = str(uuid.uuid4()) + ".avi"
+    upload_file_path = os.path.join(path, local_file_name)
     upload_file_path=video.filename
-    #video.save(upload_file_path)
+    video.save(upload_file_path)
 
-    #blob_client = blob_service_client.get_blob_client(container = container_name, blob = local_file_name)
-    #blob_client.upload_blob(upload_file_path)
+    blob_client = blob_service_client.get_blob_client(container = container_name, blob = local_file_name)
+    blob_client.upload_blob(upload_file_path)
 
-    #local_file_name = str(uuid.uuid4()) + ".img"
-    #upload_file_path_img = os.path.join(path, local_file_name)
-    #img.save(upload_file_path_img)
+    local_file_name = str(uuid.uuid4()) + ".img"
+    upload_file_path_img = os.path.join(path, local_file_name)
+    img.save(upload_file_path_img)
 
-    #blob_client = blob_service_client.get_blob_client(container=container_name_img, blob= local_file_name)
-    #blob_client.upload_blob(upload_file_path_img)
+    blob_client = blob_service_client.get_blob_client(container=container_name_img, blob= local_file_name)
+    blob_client.upload_blob(upload_file_path_img)
 
     print('blob success')
 
