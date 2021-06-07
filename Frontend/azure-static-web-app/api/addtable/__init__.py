@@ -14,7 +14,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse("Success")
 
 def upload_table(dic_data):
-    conn_str="DefaultEndpointsProtocol=https;AccountName=sh0909storage;AccountKey=Sg/73AcJ6ah/DP38yZ087H4YBSXc0irmBKZd2C5o3I6eFhDWhQeH1zAJ45U3f9d86CdYJVaeY5wRWarKoF1QoA==;EndpointSuffix=core.windows.net"
+    conn_str="DefaultEndpointsProtocol=https;AccountName=storageforys;AccountKey=sTNZfBUGl7EbNxi7duoUuzXnBuWPdfVIcgn4HzDu2y8q6BVz9oJNxr0XkJD2lFmZBsNHVpSbz8rbEzLFLZHfbQ==;EndpointSuffix=core.windows.net"
     service = TableServiceClient.from_connection_string(conn_str=conn_str)
     table_client = service.get_table_client(table_name="myTable")
 
