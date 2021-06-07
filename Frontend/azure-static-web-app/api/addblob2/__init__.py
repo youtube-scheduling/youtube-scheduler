@@ -17,7 +17,7 @@ def upload_blob(video, img):
     path = './data'
 
 
-    blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=storageforys;AccountKey=sTNZfBUGl7EbNxi7duoUuzXnBuWPdfVIcgn4HzDu2y8q6BVz9oJNxr0XkJD2lFmZBsNHVpSbz8rbEzLFLZHfbQ==;EndpointSuffix=core.windows.net") # this is my table key
+    blob_service_client = BlobServiceClient.from_connection_string("DefaultEndpointsProtocol=https;AccountName=storageforys;AccountKey=nM7gq0Ht+3Aoy5RFzaA/epWvi/w8aiMvPTIqmMDci65K9aogBIfB1o4E6bYHygk0sOzN8eA6OKr2d0CdU/mMTg==;EndpointSuffix=core.windows.net") # this is my table key
     container_name = "fileforyoutube"
     container_name_img = "imgforyoutube"
 
