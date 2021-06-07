@@ -9,7 +9,8 @@
       "methods": [
         "get",
         "post"
-      ]
+      ],
+      "route": "addblob2/{rk}"
     },
     {
       "type": "http",
