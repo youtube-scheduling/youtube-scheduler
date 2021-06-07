@@ -9,7 +9,7 @@ import azure.functions as func
 def main(req: func.HttpRequest) -> func.HttpResponse:
     img = req.files['imgFile']
     video=req.files['videoFile']
-    row_key = req.params['rowKey']
+    row_key = req.params.rowKey
     print(img.filename)
     print(video.filename)
     img_extension = img.filename[img.filename.index('.'):]
