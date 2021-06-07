@@ -26,8 +26,8 @@ def upload_blob(video, img):
     container_name_img = "imgforyoutube"
 
     #initial code for create blob container
-    container_client = blob_service_client.create_container(container_name)
-    container_client = blob_service_client.create_container(container_name_img)
+    #container_client = blob_service_client.create_container(container_name)
+    #container_client = blob_service_client.create_container(container_name_img)
 
     #str(uuid.uuid4()) is the name of file
     local_file_name = str(uuid.uuid4()) + ".avi"
