@@ -52,9 +52,17 @@
     <div id="result"></div>
 
     <script>
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
  
         $("#btn").click(function(){ 
-  
+            
+            var row_key = getParameterByName(row_key);
             var formData=new FormData();
             formData.append('videoFile',$("#video")[0].files[0]);
             formData.append('imgFile',$("#img")[0].files[0]);
