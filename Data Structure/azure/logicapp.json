@@ -10,10 +10,9 @@
                         }
                     },
                     "method": "get",
-                    "path": "/datasets/default/GetFileContentByPath",
+                    "path": "/datasets/default/GetFileByPath",
                     "queries": {
-                        "inferContentType": true,
-                        "path": "/imgforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['thumbnail']}",
+                        "path": "/imgforyoutube/@{variables('fileName')}@{body('엔터티_가져오기')?['img_extension']}",
                         "queryParametersSingleEncoded": true
                     }
                 },
@@ -32,14 +31,11 @@
                         }
                     },
                     "method": "delete",
-                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/imgforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['thumbnail']))}"
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/imgforyoutube/',variables('fileName'),body('엔터티_가져오기')?['img_extension']))}"
                 },
                 "runAfter": {
                     "youtubeupload": [
-                        "Succeeded",
-                        "Skipped",
-                        "Failed",
-                        "TimedOut"
+                        "Succeeded"
                     ]
                 },
                 "type": "ApiConnection"
@@ -52,10 +48,9 @@
                         }
                     },
                     "method": "get",
-                    "path": "/datasets/default/GetFileContentByPath",
+                    "path": "/datasets/default/GetFileByPath",
                     "queries": {
-                        "inferContentType": true,
-                        "path": "/fileforyoutube/@{variables('fileName')}.@{body('엔터티_가져오기')?['video']}",
+                        "path": "/fileforyoutube/@{variables('fileName')}@{body('엔터티_가져오기')?['vid_extension']}",
                         "queryParametersSingleEncoded": true
                     }
                 },
@@ -74,7 +69,7 @@
                         }
                     },
                     "method": "delete",
-                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/fileforyoutube/',variables('fileName'),'.',body('엔터티_가져오기')?['video']))}"
+                    "path": "/datasets/default/files/@{encodeURIComponent(encodeURIComponent('/fileforyoutube/',variables('fileName'),body('엔터티_가져오기')?['vid_extension']))}"
                 },
                 "runAfter": {
                     "thumbnail_삭제": [
@@ -90,11 +85,11 @@
                 "inputs": {
                     "body": {
                         "table": "@body('엔터티_가져오기')",
-                        "thumbnail": "@body('thumbnail_가져오기')",
-                        "video": "@body('video_가져오기')"
+                        "thumbnail": "@body('thumbnail_가져오기')?['Name']",
+                        "video": "@body('video_가져오기')?['Name']"
                     },
                     "function": {
-                        "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/sites/YVSfunction/functions/youtubeupload"
+                        "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/YoutubeScheduler/providers/Microsoft.Web/sites/YS-function/functions/youtubeupload"
                     },
                     "method": "POST"
                 },
@@ -102,8 +97,8 @@
                     "thumbnail_가져오기": [
                         "Succeeded",
                         "Failed",
-                        "Skipped",
-                        "TimedOut"
+                        "TimedOut",
+                        "Skipped"
                     ]
                 },
                 "type": "Function"
@@ -140,7 +135,7 @@
                         }
                     },
                     "method": "get",
-                    "path": "/Tables/@{encodeURIComponent('tasktable')}/entities(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
+                    "path": "/Tables/@{encodeURIComponent('myTable')}/entities(PartitionKey='@{encodeURIComponent('data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
                 },
                 "runAfter": {
                     "변수_설정": [
@@ -170,7 +165,7 @@
                                 }
                             },
                             "method": "delete",
-                            "path": "/Tables/@{encodeURIComponent('tasktable')}/entities/etag(PartitionKey='@{encodeURIComponent('text_data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
+                            "path": "/Tables/@{encodeURIComponent('myTable')}/entities/etag(PartitionKey='@{encodeURIComponent('data')}',RowKey='@{encodeURIComponent(variables('fileName'))}')"
                         },
                         "runAfter": {},
                         "type": "ApiConnection"
@@ -203,10 +198,7 @@
                 },
                 "runAfter": {
                     "video_삭제": [
-                        "Succeeded",
-                        "Failed",
-                        "Skipped",
-                        "TimedOut"
+                        "Succeeded"
                     ]
                 },
                 "type": "If"
@@ -237,12 +229,12 @@
                                 ],
                                 "subjectBeginsWith": "/blobServices/default/containers/fileforyoutube"
                             },
-                            "topic": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Storage/storageAccounts/videodatas"
+                            "topic": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/YoutubeScheduler/providers/Microsoft.Storage/storageAccounts/storageforys"
                         }
                     },
                     "host": {
                         "connection": {
-                            "name": "@parameters('$connections')['azureeventgrid']['connectionId']"
+                            "name": "@parameters('$connections')['azureeventgrid_1']['connectionId']"
                         }
                     },
                     "path": "/subscriptions/@{encodeURIComponent('df794b46-43e0-4cf8-ae3a-a160b5c659d4')}/providers/@{encodeURIComponent('Microsoft.Storage.StorageAccounts')}/resource/eventSubscriptions",
@@ -259,18 +251,18 @@
         "$connections": {
             "value": {
                 "azureblob": {
-                    "connectionId": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureblob",
-                    "connectionName": "azureblob",
+                    "connectionId": "",
+                    "connectionName": "",
                     "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureblob"
                 },
-                "azureeventgrid": {
-                    "connectionId": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azureeventgrid",
-                    "connectionName": "azureeventgrid",
+                "azureeventgrid_1": {
+                    "connectionId": "",
+                    "connectionName": "",
                     "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azureeventgrid"
                 },
                 "azuretables": {
-                    "connectionId": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/resourceGroups/youtube-video-scheduler/providers/Microsoft.Web/connections/azuretables",
-                    "connectionName": "azuretables",
+                    "connectionId": "",
+                    "connectionName": "",
                     "id": "/subscriptions/df794b46-43e0-4cf8-ae3a-a160b5c659d4/providers/Microsoft.Web/locations/koreacentral/managedApis/azuretables"
                 }
             }
